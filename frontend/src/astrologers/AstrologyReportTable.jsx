@@ -146,15 +146,7 @@ const AstrologyReportTable = () => {
             </div>
           )
         )}
-        <div className="mt-6 sm:mt-8 text-center">
-          <Button
-            onClick={() => navigate("/astrology-report")}
-            variant="brand"
-            className="rounded-full bg-[#3B5EB7] hover:bg-[#2F4A94] text-white text-sm sm:text-lg py-2 sm:py-3 px-4 sm:px-6 shadow-md transition-all duration-200 w-full sm:w-auto"
-          >
-            Generate New Report (5 Credits)
-          </Button>
-        </div>
+        
       </div>
     );
   };
