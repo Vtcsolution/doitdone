@@ -110,51 +110,49 @@ const PoeticInterpretation = ({ chart }) => {
             <div className="p-4 bg-white/50 rounded-lg border border-amber-100">
               <h3 className="text-lg font-semibold text-amber-800">Zon in {chart.sun.sign}</h3>
               <p className="text-amber-700">
-                Je bent dromerig, empathisch en diep spiritueel. Je voelt de pijn én schoonheid van de wereld, maar kunt vluchten in fantasie of slachtofferschap. Je groeit door je intuïtie te vertrouwen én grenzen te stellen. 🔑 Trigger: Kun jij gevoelig zijn zonder jezelf te verliezen?
+                {chart.sun.description}
               </p>
             </div>
     
             <div className="p-4 bg-white/50 rounded-lg border border-blue-100">
               <h3 className="text-lg font-semibold text-blue-800">Maan in {chart.moon.sign}</h3>
               <p className="text-blue-700">
-                Je bent extreem gevoelig en intuïtief afgestemd op de sfeer om je heen. Je voelt je veilig in vertrouwde omgevingen en bij geliefden. Maar je kunt in oude pijn blijven hangen. 🔑 Trigger: Kun jij jezelf troosten zonder jezelf te verliezen in nostalgie?
+                {chart.moon.description}
               </p>
             </div>
     
             <div className="p-4 bg-white/50 rounded-lg border border-pink-100">
               <h3 className="text-lg font-semibold text-pink-800">Venus in {chart.venus.sign}</h3>
               <p className="text-pink-700">
-                Je werkt langzaam maar gestaag. Als je eenmaal ergens voor gaat, ben je onverzettelijk. Je
-energie is sensueel, koppig en sterk gegrond. Maar je hebt tijd nodig om in beweging te
-komen. 🔑 Trigger: Kun jij verandering omarmen zonder je veiligheid te verliezen?
+                {chart.venus.description}
               </p>
             </div>
     
             <div className="p-4 bg-white/50 rounded-lg border border-red-100">
               <h3 className="text-lg font-semibold text-red-800">Mars in {chart.mars.sign}</h3>
               <p className="text-red-700">
-                 avontuurlijk en idealistisch. Je vecht voor vrijheid en waarheid, maar kunt grillig of overdreven zijn. 🔑 Trigger: Kun jij richting houden zonder je te verliezen in het grote plaatje?
+                {chart.mars.description}
               </p>
             </div>
     
             <div className="p-4 bg-white/50 rounded-lg border border-green-100">
               <h3 className="text-lg font-semibold text-green-800">Mercurius in {chart.mercury.sign}</h3>
               <p className="text-green-700">
-                Je denkt intuïtief, dromerig en metaforisch. Je communiceert in beelden, gevoelens en stiltes. Maar je kunt verward of onsamenhangend zijn. 🔑 Trigger: Kun jij helder zijn zonder je magie te verliezen?
+                {chart.mercury.description}
               </p>
             </div>
     
             <div className="p-4 bg-white/50 rounded-lg border border-yellow-100">
               <h3 className="text-lg font-semibold text-yellow-800">Jupiter in {chart.jupiter.sign}</h3>
               <p className="text-yellow-700">
-                Je vertrouwt op gevoel, verbeelding en universele liefde. Je groeit door spiritualiteit, compassie en overgave. Maar je kunt verdwalen in illusies of escapisme. 🔑 Trigger: Kun jij grenzeloos liefhebben zonder jezelf te verliezen?
+                {chart.jupiter.description}
               </p>
             </div>
     
             <div className="p-4 bg-white/50 rounded-lg border border-gray-200">
               <h3 className="text-lg font-semibold text-gray-800">Saturnus in {chart.saturn.sign}</h3>
               <p className="text-gray-700">
-                Je twijfelt aan je geloof of levensvisie. Je leert verantwoordelijkheid te nemen voor je waarheid – en om visie met realisme te combineren. 🔑 Trigger: Kun jij vol vertrouwen bewegen zonder garanties?
+                {chart.saturn.description}
               </p>
             </div>
           </CardContent>
