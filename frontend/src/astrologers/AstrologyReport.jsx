@@ -597,24 +597,28 @@ const AstrologyReport = ({ openPaymentModal }) => {
             {currentStep === 2 && renderStep2()}
             {currentStep === 3 && renderStep3()}
 
-            <div className="flex justify-between mt-8">
-              <Button
-                variant="outline"
-                className="rounded-full border-purple-600 text-purple-600 hover:bg-purple-50"
-                onClick={handlePrevious}
-                disabled={currentStep === 1}
-              >
-                Vorige
-              </Button>
-              <Button
-                variant="brand"
-                className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                onClick={handleNext}
-                disabled={currentStep === 3}
-              >
-                Volgende
-              </Button>
-            </div>
+           <div className="flex justify-between mt-8">
+  <Button
+    variant="outline"
+    className="rounded-full border-purple-600 text-purple-600 hover:bg-purple-50"
+    onClick={handlePrevious}
+    disabled={currentStep === 1}
+  >
+    Vorige
+  </Button>
+
+  {/* Only show Next button when not on last step */}
+  {currentStep < 3 && (
+    <Button
+      variant="brand"
+      className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+      onClick={handleNext}
+    >
+      Volgende
+    </Button>
+  )}
+</div>
+
 
             <div className="text-center mt-8">
               <h2 className="text-2xl font-bold text-purple-800 mb-4">Klaar om Meer te Verkennen?</h2>
