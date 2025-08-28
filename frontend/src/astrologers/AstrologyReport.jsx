@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/All_Components/screen/AuthContext";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import { DialogHeader } from "@/components/ui/dialog";
+import axios from "axios"; // Added missing import
 
 // Vedic Chart Component
 const VedicChart = ({ chart }) => {
@@ -92,7 +93,6 @@ const VedicChart = ({ chart }) => {
   );
 };
 
-
 const PoeticInterpretation = ({ chart }) => {
   if (!chart) return null;
 
@@ -107,74 +107,42 @@ const PoeticInterpretation = ({ chart }) => {
       <CardContent className="space-y-6">
         <div className="p-4 bg-white/50 rounded-lg border border-amber-100">
           <h3 className="text-lg font-semibold text-amber-800">Zon in {chart.sun.sign}</h3>
-          <p className="text-amber-700">
-            Je bent dromerig, empathisch en diep spiritueel. Je voelt de pijn én schoonheid van de wereld, maar kunt vluchten in fantasie of slachtofferschap. Je groeit door je intuïtie te vertrouwen én grenzen te stellen. 🔑 Trigger: Kun jij gevoelig zijn zonder jezelf te verliezen?
-          </p>
+          <p className="text-amber-700">{chart.sun.description}</p>
         </div>
-
         <div className="p-4 bg-white/50 rounded-lg border border-blue-100">
           <h3 className="text-lg font-semibold text-blue-800">Maan in {chart.moon.sign}</h3>
-          <p className="text-blue-700">
-            Je bent extreem gevoelig en intuïtief afgestemd op de sfeer om je heen. Je voelt je veilig in vertrouwde omgevingen en bij geliefden. Maar je kunt in oude pijn blijven hangen. 🔑 Trigger: Kun jij jezelf troosten zonder jezelf te verliezen in nostalgie?
-          </p>
+          <p className="text-blue-700">{chart.moon.description}</p>
         </div>
-
         <div className="p-4 bg-white/50 rounded-lg border border-pink-100">
           <h3 className="text-lg font-semibold text-pink-800">Venus in {chart.venus.sign}</h3>
-          <p className="text-pink-700">
-             Je houdt van vrijheid, originaliteit en vriendschap als basis. Je zoekt liefde die ruimte laat
-voor zelfontplooiing. Maar je kunt afstandelijk zijn of moeite hebben met emotionele
-nabijheid. 🔑 Trigger: Kun jij vrijheid én verbinding laten samengaan?
-          </p>
+          <p className="text-pink-700">{chart.venus.description}</p>
         </div>
-
         <div className="p-4 bg-white/50 rounded-lg border border-red-100">
           <h3 className="text-lg font-semibold text-red-800">Mars in {chart.mars.sign}</h3>
-          <p className="text-red-700">
-            Je werkt langzaam maar gestaag. Als je eenmaal ergens voor gaat, ben je onverzettelijk. Je
-energie is sensueel, koppig en sterk gegrond. Maar je hebt tijd nodig om in beweging te
-komen. 🔑 Trigger: Kun jij verandering omarmen zonder je veiligheid te verliezen?
-          </p>
+          <p className="text-red-700">{chart.mars.description}</p>
         </div>
-
         <div className="p-4 bg-white/50 rounded-lg border border-green-100">
           <h3 className="text-lg font-semibold text-green-800">Mercurius in {chart.mercury.sign}</h3>
-          <p className="text-green-700">
-            Je denkt intuïtief, dromerig en metaforisch. Je communiceert in beelden, gevoelens en stiltes. Maar je kunt verward of onsamenhangend zijn. 🔑 Trigger: Kun jij helder zijn zonder je magie te verliezen?
-          </p>
+          <p className="text-green-700">{chart.mercury.description}</p>
         </div>
-
         <div className="p-4 bg-white/50 rounded-lg border border-yellow-100">
           <h3 className="text-lg font-semibold text-yellow-800">Jupiter in {chart.jupiter.sign}</h3>
-          <p className="text-yellow-700">
-            Je vertrouwt op gevoel, verbeelding en universele liefde. Je groeit door spiritualiteit, compassie en overgave. Maar je kunt verdwalen in illusies of escapisme. 🔑 Trigger: Kun jij grenzeloos liefhebben zonder jezelf te verliezen?
-          </p>
+          <p className="text-yellow-700">{chart.jupiter.description}</p>
         </div>
-
         <div className="p-4 bg-white/50 rounded-lg border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-800">Saturnus in {chart.saturn.sign}</h3>
-          <p className="text-gray-700">
-            Je twijfelt aan je geloof of levensvisie. Je leert verantwoordelijkheid te nemen voor je waarheid – en om visie met realisme te combineren. 🔑 Trigger: Kun jij vol vertrouwen bewegen zonder garanties?
-          </p>
+          <p className="text-gray-700">{chart.saturn.description}</p>
         </div>
       </CardContent>
     </Card>
   );
 };
 
-
-// Cosmic Story Component
 const CosmicStory = ({ chart, numerology }) => {
   if (!chart || !numerology) return null;
-
-  return (
-    <div>
-      
-    </div>
-  );
+  return <div>{/* CosmicStory implementation */}</div>;
 };
 
-// Main Component
 const AstrologyReport = ({ openPaymentModal }) => {
   const { user } = useAuth();
   const location = useLocation();
@@ -185,9 +153,34 @@ const AstrologyReport = ({ openPaymentModal }) => {
   const [userCredits, setUserCredits] = useState(0);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [modalType, setModalType] = useState(null); // Track modal type (astrology/monthly-forecast)
+  const [modalType, setModalType] = useState(null);
+  const [firstPsychicId, setFirstPsychicId] = useState(null);
 
   useEffect(() => {
+    const fetchFirstTarotPsychic = async () => {
+      try {
+        if (!user?._id) {
+          console.log("No user ID, skipping psychic fetch");
+          return;
+        }
+        const res = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/psychics/type/Astrology`,
+          { withCredentials: true }
+        );
+        const psychics = res.data?.data || [];
+        if (psychics.length > 0) {
+          setFirstPsychicId(psychics[0]._id);
+          console.log("Fetched psychic ID:", psychics[0]._id);
+        } else {
+          toast.error("No Astrology Coach found.");
+          console.log("No psychics found in response");
+        }
+      } catch (err) {
+        console.error("Failed to fetch Astrology Coach:", err.response?.data || err.message);
+        toast.error("Failed to load Astrology Coach data.");
+      }
+    };
+
     const fetchUserCredits = async () => {
       if (!user) return;
       try {
@@ -199,6 +192,7 @@ const AstrologyReport = ({ openPaymentModal }) => {
         if (data.success) {
           setUserCredits(data.credits || 0);
         } else {
+          console.error("Failed to fetch credits:", data.message);
         }
       } catch (error) {
         console.error("Failed to fetch user credits:", error);
@@ -216,14 +210,15 @@ const AstrologyReport = ({ openPaymentModal }) => {
           setReport(data.data);
           setShowModal(true);
         } else {
-          toast.error("Failed to load astrology report");
+          setReport(null); // Clear report if none exists
         }
       } catch (error) {
-        toast.error("Error fetching astrology report");
+        console.error("Error fetching astrology report:", error);
+        setReport(null);
       }
     };
 
-    // Check user and birth details, then attempt to unlock report if not present
+    // Check user and birth details
     if (!user) {
       toast.error("Please log in to unlock the astrology report");
       navigate("/register");
@@ -236,13 +231,16 @@ const AstrologyReport = ({ openPaymentModal }) => {
     }
 
     fetchUserCredits();
+    fetchFirstTarotPsychic();
 
-    if (!report) {
-      handleAstrologyUnlock();
+    // Handle forceNew flag from AstrologyReportTable
+    if (location.state?.forceNew) {
+      setReport(null); // Clear existing report
+      handleAstrologyUnlock(); // Trigger new report generation
     } else {
-      fetchReport();
+      fetchReport(); // Fetch existing report
     }
-  }, [user, report, navigate]);
+  }, [user, navigate, location.state]);
 
   const handleAstrologyUnlock = async () => {
     setIsSubmitting(true);
@@ -260,19 +258,20 @@ const AstrologyReport = ({ openPaymentModal }) => {
       if (data.success) {
         setReport(data.data);
         setShowModal(true);
-        toast.success("Astrology Report unlocked successfully!");
+        toast.success("Astrology Report generated successfully!");
+        navigate("/astrology-report", { replace: true }); // Clear forceNew state
       } else {
         if (data.message.includes("Insufficient credits")) {
           setShowConfirmModal(true);
         } else {
-          toast.error(data.message || "Failed to unlock Astrology Report.");
+          toast.error(data.message || "Failed to generate Astrology Report.");
         }
       }
     } catch (error) {
       if (error.response?.data?.message?.includes("Insufficient credits")) {
         setShowConfirmModal(true);
       } else {
-        toast.error("Error unlocking Astrology Report.");
+        toast.error("Error generating Astrology Report.");
       }
     } finally {
       setIsSubmitting(false);
@@ -350,7 +349,6 @@ const AstrologyReport = ({ openPaymentModal }) => {
               <Sparkles className="h-6 w-6 text-yellow-500" />
               <div>
                 <h3 className="font-semibold text-purple-800">Zon in {chart.sun.sign} (Huis {chart.sun.house})</h3>
-                
                 <Badge className="mt-2 bg-yellow-500 text-white">Kern Identiteit</Badge>
               </div>
             </div>
@@ -358,7 +356,6 @@ const AstrologyReport = ({ openPaymentModal }) => {
               <Heart className="h-6 w-6 text-blue-500" />
               <div>
                 <h3 className="font-semibold text-blue-800">Maan in {chart.moon.sign} (Huis {chart.moon.house})</h3>
-                
                 <Badge className="mt-2 bg-red-500 text-white">Emotionele Kern</Badge>
               </div>
             </div>
@@ -366,7 +363,6 @@ const AstrologyReport = ({ openPaymentModal }) => {
               <Flame className="h-6 w-6 text-pink-500" />
               <div>
                 <h3 className="font-semibold text-pink-800">Venus in {chart.venus.sign} (Huis {chart.venus.house})</h3>
-               
                 <Badge className="mt-2 bg-pink-500 text-white">Liefde & Harmonie</Badge>
               </div>
             </div>
@@ -374,7 +370,6 @@ const AstrologyReport = ({ openPaymentModal }) => {
               <Flame className="h-6 w-6 text-red-500" />
               <div>
                 <h3 className="font-semibold text-red-800">Mars in {chart.mars.sign} (Huis {chart.mars.house})</h3>
-               
                 <Badge className="mt-2 bg-red-500 text-white">Drive & Passie</Badge>
               </div>
             </div>
@@ -382,7 +377,6 @@ const AstrologyReport = ({ openPaymentModal }) => {
               <MessageSquare className="h-6 w-6 text-green-500" />
               <div>
                 <h3 className="font-semibold text-green-800">Mercurius in {chart.mercury.sign} (Huis {chart.mercury.house})</h3>
-               
                 <Badge className="mt-2 bg-green-500 text-white">Communicatie</Badge>
               </div>
             </div>
@@ -390,7 +384,6 @@ const AstrologyReport = ({ openPaymentModal }) => {
               <Globe className="h-6 w-6 text-yellow-500" />
               <div>
                 <h3 className="font-semibold text-yellow-800">Jupiter in {chart.jupiter.sign} (Huis {chart.jupiter.house})</h3>
-                
                 <Badge className="mt-2 bg-yellow-500 text-white">Groei & Wijsheid</Badge>
               </div>
             </div>
@@ -398,7 +391,6 @@ const AstrologyReport = ({ openPaymentModal }) => {
               <Shield className="h-6 w-6 text-gray-500" />
               <div>
                 <h3 className="font-semibold text-gray-800">Saturnus in {chart.saturn.sign} (Huis {chart.saturn.house})</h3>
-                
                 <Badge className="mt-2 bg-gray-500 text-white">Discipline</Badge>
               </div>
             </div>
@@ -515,7 +507,7 @@ const AstrologyReport = ({ openPaymentModal }) => {
                 </div>
                 <div className="p-4 bg-white/50 rounded-lg border border-gray-200">
                   <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                    <Shield className="h-5 h-5 text-gray-500" /> Saturnus in {report.chart.saturn.sign} (Huis {report.chart.saturn.house})
+                    <Shield className="h-5 h-5 text-gray-500" /> Saturnus in {report.chart.saturn.sign} (Huis {report.saturn.house})
                   </h3>
                   <p className="text-gray-700 text-sm mt-2">{report.chart.saturn.description}</p>
                   <Progress value={68} className="h-2 mt-2 bg-white border border-gray-300" />
@@ -525,40 +517,39 @@ const AstrologyReport = ({ openPaymentModal }) => {
               </div>
             </CardContent>
           </Card>
-          
           <CosmicStory chart={report.chart} numerology={report.numerology} />
         </>
       )}
     </div>
   );
 
- const renderNoReport = () => (
-  <div className="p-4 bg-white rounded-lg shadow-sm dark:bg-slate-900 border border-slate-100 dark:border-slate-800 max-w-xs mx-auto">
-    <h3 className="text-lg font-medium mb-2 text-gray-900 dark:text-white">Astrologische Blauwdruk</h3>
-    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-      Ontdek inzichten uit je zon, maan en ascendant tekens.
-    </p>
-    <Button
-      variant="brand"
-      size="sm"
-      className="w-full rounded-md bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-sm"
-      onClick={handleAstrologyUnlock}
-      disabled={isSubmitting}
-    >
-      {isSubmitting ? (
-        <span className="flex items-center justify-center gap-2">
-          <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          Verwerken...
-        </span>
-      ) : (
-        "Ontgrendel (5 Credits)"
-      )}
-    </Button>
-  </div>
-);
+  const renderNoReport = () => (
+    <div className="p-4 bg-white rounded-lg shadow-sm dark:bg-slate-900 border border-slate-100 dark:border-slate-800 max-w-xs mx-auto">
+      <h3 className="text-lg font-medium mb-2 text-gray-900 dark:text-white">Astrologische Blauwdruk</h3>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        Ontdek inzichten uit je zon, maan en ascendant tekens.
+      </p>
+      <Button
+        variant="brand"
+        size="sm"
+        className="w-full rounded-md bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-sm"
+        onClick={handleAstrologyUnlock}
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? (
+          <span className="flex items-center justify-center gap-2">
+            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Verwerken...
+          </span>
+        ) : (
+          "Ontgrendel (5 Credits)"
+        )}
+      </Button>
+    </div>
+  );
 
   const stepProgress = currentStep === 1 ? 33 : currentStep === 2 ? 66 : 100;
   const stepLabel = currentStep === 1 ? "Geboortekaart" : currentStep === 2 ? "Kosmische Inzichten" : "Gedetailleerde Analyse";
@@ -597,28 +588,25 @@ const AstrologyReport = ({ openPaymentModal }) => {
             {currentStep === 2 && renderStep2()}
             {currentStep === 3 && renderStep3()}
 
-           <div className="flex justify-between mt-8">
-  <Button
-    variant="outline"
-    className="rounded-full border-purple-600 text-purple-600 hover:bg-purple-50"
-    onClick={handlePrevious}
-    disabled={currentStep === 1}
-  >
-    Vorige
-  </Button>
-
-  {/* Only show Next button when not on last step */}
-  {currentStep < 3 && (
-    <Button
-      variant="brand"
-      className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-      onClick={handleNext}
-    >
-      Volgende
-    </Button>
-  )}
-</div>
-
+            <div className="flex justify-between mt-8">
+              <Button
+                variant="outline"
+                className="rounded-full border-purple-600 text-purple-600 hover:bg-purple-50"
+                onClick={handlePrevious}
+                disabled={currentStep === 1}
+              >
+                Vorige
+              </Button>
+              {currentStep < 3 && (
+                <Button
+                  variant="brand"
+                  className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                  onClick={handleNext}
+                >
+                  Volgende
+                </Button>
+              )}
+            </div>
 
             <div className="text-center mt-8">
               <h2 className="text-2xl font-bold text-purple-800 mb-4">Klaar om Meer te Verkennen?</h2>
@@ -627,16 +615,20 @@ const AstrologyReport = ({ openPaymentModal }) => {
                 <Button
                   variant="brand"
                   className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                  onClick={() => navigate("/chat/free")}
+                  onClick={() => {
+                    console.log("Navigating to chat, firstPsychicId:", firstPsychicId);
+                    navigate(firstPsychicId ? `/chat/${firstPsychicId}` : "/chat");
+                  }}
                 >
-Chat nu met je AI Coach                </Button>
-                 <Button
-                              variant="outline"
-                              className="rounded-full border-purple-600 text-purple-600 hover:bg-purple-50"
-                              onClick={() => navigate("/numerology-report")}
-                            >
-                              Je Numerologie Rapport
-                            </Button>
+                  Chat nu met je AI Coach
+                </Button>
+                <Button
+                  variant="outline"
+                  className="rounded-full border-purple-600 text-purple-600 hover:bg-purple-50"
+                  onClick={() => navigate("/numerology-report")}
+                >
+                  Je Numerologie Rapport
+                </Button>
               </div>
             </div>
 
@@ -646,60 +638,57 @@ Chat nu met je AI Coach                </Button>
           </>
         )}
 
-   <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
-  <DialogContent className="fixed inset-0 z-50 flex items-center justify-center">
-    {/* Overlay */}
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-    
-    {/* Dialog Container */}
-    <div className="relative z-50 bg-white dark:bg-slate-950 rounded-lg shadow-xl max-w-sm w-full mx-4 p-6">
-      <DialogHeader>
-        <div className="flex flex-col items-center space-y-4">
-          <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-red-500 dark:text-red-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <DialogTitle className="text-lg font-semibold text-center text-gray-900 dark:text-white">
-            Onvoldoende Credits
-          </DialogTitle>
-          <DialogDescription className="text-sm text-gray-600 dark:text-gray-400 text-center">
-            Je hebt {modalType === "astrology" ? 5 : 10} credits nodig om deze functie te ontgrendelen.
-            <br />
-            Huidig saldo: {userCredits} credits
-          </DialogDescription>
-        </div>
-      </DialogHeader>
-      <div className="mt-6 flex justify-center space-x-3">
-        <Button
-          onClick={() => setShowConfirmModal(false)}
-          variant="outline"
-          className="px-4 py-1.5 text-sm rounded-md border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-        >
-          Annuleren
-        </Button>
-        <Button
-          onClick={handleConfirmUnlock}
-          variant="default"
-          className="px-4 py-1.5 text-sm rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm"
-        >
-          Credits Toevoegen
-        </Button>
-      </div>
-    </div>
-  </DialogContent>
-</Dialog>
+        <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+          <DialogContent className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+            <div className="relative z-50 bg-white dark:bg-slate-950 rounded-lg shadow-xl max-w-sm w-full mx-4 p-6">
+              <DialogHeader>
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 text-red-500 dark:text-red-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <DialogTitle className="text-lg font-semibold text-center text-gray-900 dark:text-white">
+                    Onvoldoende Credits
+                  </DialogTitle>
+                  <DialogDescription className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                    Je hebt {modalType === "astrology" ? 5 : 10} credits nodig om deze functie te ontgrendelen.
+                    <br />
+                    Huidig saldo: {userCredits} credits
+                  </DialogDescription>
+                </div>
+              </DialogHeader>
+              <div className="mt-6 flex justify-center space-x-3">
+                <Button
+                  onClick={() => setShowConfirmModal(false)}
+                  variant="outline"
+                  className="px-4 py-1.5 text-sm rounded-md border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  Annuleren
+                </Button>
+                <Button
+                  onClick={handleConfirmUnlock}
+                  variant="default"
+                  className="px-4 py-1.5 text-sm rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm"
+                >
+                  Credits Toevoegen
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
